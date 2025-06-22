@@ -1,17 +1,18 @@
-package final_project;
+package src;
 
 import apphelper.*;
 import java.awt.*;
 
 public class Zombie {
+
     protected static int count = 0;
 
     private final Sprite[] FRAMES = {
-        new Sprite(0, 0, "imgs/zombie/zombie0.png", 360, 380),
-        new Sprite(0, 0, "imgs/zombie/zombie1.png", 360, 380),
-        new Sprite(0, 0, "imgs/zombie/zombie2.png", 360, 380),
-        new Sprite(0, 0, "imgs/zombie/zombie3.png", 360, 380),
-        new Sprite(0, 0, "imgs/zombie/zombie4.png", 360, 380)
+        new Sprite(0, 0, "imgs/zombie/zombie0.png"),
+        new Sprite(0, 0, "imgs/zombie/zombie1.png"),
+        new Sprite(0, 0, "imgs/zombie/zombie2.png"),
+        new Sprite(0, 0, "imgs/zombie/zombie3.png"),
+        new Sprite(0, 0, "imgs/zombie/zombie4.png")
     };
 
     private final int WIDTH = 360;
@@ -19,7 +20,7 @@ public class Zombie {
 
     private int x;
     private int y;
-     double scale;
+    private double scale;
 
     private int health;
     private int damage;
@@ -33,7 +34,7 @@ public class Zombie {
         health = 10;
         damage = 5;
         cur = frame;
-        
+
         count++;
     }
 

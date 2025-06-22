@@ -1,4 +1,4 @@
-package final_project;
+package src;
 
 import javax.swing.*;
 import apphelper.*;
@@ -9,14 +9,14 @@ import java.util.Random;
 
 public class GamePanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
-    private static Sprite bg = new Sprite(0, 0, "imgs/bg.png");
+    private static final Sprite bg = new Sprite(0, 0, "imgs/bg.png");
 
-    private static Sprite m1 = new Sprite(0, 0, "imgs/m1.png", 100, 100);
-    private static Sprite m2 = new Sprite(0, 0, "imgs/m2.png", 150, 150);
-    private static Sprite m3 = new Sprite(0, 0, "imgs/m3.png", 80, 80);
+    private static Sprite m = new Sprite(0, 0, "imgs/m1.png");
 
-    private static int width;
-    private static int height;
+    protected static int width;
+    protected static int height;
+    protected static double scaleX;
+    protected static double scaleY;
     private static int[] center;
 
     private static Robot robot;
@@ -31,17 +31,25 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     private static int health;
     private static int coins;
 
-    private static Random r = new Random();
+    private static final Random r = new Random();
 
-    private static ArrayList<Zombie> zombies = new ArrayList<Zombie>();
-    int count;
+    private static final ArrayList<Zombie> zombies = new ArrayList<>();
 
-    public GamePanel(int width, int height) {
+    private static int count;
+
+    private static Weapon w;
+
+    public GamePanel(int width, int height, double scaleX, double scaleY) {
         GamePanel.width = width;
         GamePanel.height = height;
-        bg.resize((int) (width * 2.5), (int) (height * 2.5));
-        limitX = (int) (width * -1.5);
-        limitY = (int) (height * -1.5);
+        GamePanel.scaleX = scaleX;
+        GamePanel.scaleY = scaleY;
+
+        bg.resize((int) (bg.getWidth() * 2.5 / GamePanel.scaleX), (int) (bg.getHeight() * 2.5 / GamePanel.scaleY));
+        limitX = -bg.getWidth() + GamePanel.width;
+        limitY = -bg.getHeight() + GamePanel.height;
+
+        m.resize((int) (m.getWidth() / scaleX), (int) (m.getHeight() / scaleY));
 
         center = new int[]{width / 2, height / 2};
 
@@ -49,6 +57,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         coins = 0;
 
         generateZombies(1);
+
+        w = new Weapon();
 
         t = new Timer(7, e -> {
             offsetX -= 2 * deltaX;
@@ -61,14 +71,12 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
             bg.setX(offsetX);
             bg.setY(offsetY);
 
-            m1.setX(offsetX + (int) (width * 1.1));
-            m1.setY(offsetY + (int) (height * 1.4));
+            m.setX(offsetX + (int) (width * 1.1));
+            m.setY(offsetY + (int) (height * 1.4));
 
-            m2.setX(offsetX + (int) (width * 1.2));
-            m2.setY(offsetY + (int) (height * 1.35));
-
-            m3.setX(offsetX + (int) (width * 1.4));
-            m3.setY(offsetY + (int) (height * 1.4));
+            if (w.shooting) {
+                w.recoil += w.recoil < w.recoilLimit ? 1 : -4;
+            }
 
             repaint();
         });
@@ -104,21 +112,21 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         bg.draw(g);
 
         // draw modules
-        m1.draw(g);
-        m2.draw(g);
-        m3.draw(g);
+        m.draw(g);
 
         // draw zombies
         for (Zombie z : zombies) {
             z.draw(g);
         }
 
+        w.draw(g);
+
         // draw crosshair
         g.setColor(Color.YELLOW);
-        g.fillRect(width / 2 - 20 - Weapon.recoil, height / 2 - 2, 15, 4);
-        g.fillRect(width / 2 + 5 + Weapon.recoil, height / 2 - 2, 15, 4);
-        g.fillRect(width / 2 - 2, height / 2 - 20 - Weapon.recoil, 4, 15);
-        g.fillRect(width / 2 - 2, height / 2 + 5 + Weapon.recoil, 4, 15);
+        g.fillRect(width / 2 - 20 - w.recoil, height / 2 - 2, 15, 4);
+        g.fillRect(width / 2 + 5 + w.recoil, height / 2 - 2, 15, 4);
+        g.fillRect(width / 2 - 2, height / 2 - 20 - w.recoil, 4, 15);
+        g.fillRect(width / 2 - 2, height / 2 + 5 + w.recoil, 4, 15);
         g.drawString("❤️ " + health, 10, 30);
         g.drawString("⭕ " + coins, 10, 45);
         g.drawString("" + count, 10, 60);
@@ -127,11 +135,14 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     public static void generateZombies(int n) {
         for (int i = 0; i < n; i++) {
-            zombies.add(new Zombie((int) (width * (0.6 + r.nextDouble(0.1))), (int) (height * (1.25 + r.nextDouble(0.08))), 0.3, r.nextInt(5)));
+            zombies.add(new Zombie((int) (width * (0.6 + r.nextDouble(0.1))),
+                    (int) (height * (1.25 + r.nextDouble(0.08))),
+                    0.4 / scaleX, r.nextInt(5)));
         }
     }
 
     //all keys
+
     @Override
     public void keyPressed(KeyEvent e) {
     }
@@ -169,10 +180,10 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON3) {
-            if (m1.getX() - width / 2 < 0
-                    && m1.getX() - width / 2 > -100
-                    && m1.getY() - height / 2 < 0
-                    && m1.getY() - height / 2 > -100) {
+            if (m.getX() - width / 2 < 0
+                    && m.getX() - width / 2 > -100
+                    && m.getY() - height / 2 < 0
+                    && m.getY() - height / 2 > -100) {
                 JOptionPane.showMessageDialog(this, "Accessing module 1");
             }
         }
@@ -181,7 +192,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            Weapon.recoil = 2;
+            w.shooting = true;
             generateZombies(1);
         }
     }
@@ -189,7 +200,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     @Override
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            Weapon.recoil = 0;
+            w.shooting = false;
+            w.recoil = 0;
         }
     }
 

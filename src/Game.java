@@ -1,13 +1,15 @@
-package final_project;
+package src;
 
 import java.awt.*;
 import javax.swing.*;
 import java.awt.geom.AffineTransform;
 
 public class Game extends JFrame {
-    
+
     private GamePanel p;
-    
+
+    private static double scaleX;
+    private static double scaleY;
     private static int width;
     private static int height;
 
@@ -16,23 +18,22 @@ public class Game extends JFrame {
         GraphicsConfiguration gc = gd.getDefaultConfiguration();
         DisplayMode dm = gd.getDisplayMode();
         AffineTransform af = gc.getDefaultTransform();
-        width = (int) (dm.getWidth() / af.getScaleX());
-        height = (int) (dm.getHeight() / af.getScaleY());
-        
+        scaleX = af.getScaleX();
+        scaleY = af.getScaleY();
+        width = (int) (dm.getWidth() / scaleX);
+        height = (int) (dm.getHeight() / scaleY);
+
         // create frame
-        setTitle("Game");
-        setSize(width,height);
+        setTitle("Zombie Shooter");
+        setSize(width, height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        
-        p = new GamePanel(width,height);
+
+        p = new GamePanel(width, height, scaleX, scaleY);
         add(p);
-        
-        // make window focusable to receive key events
-        setFocusable(true);
-        
+
         Toolkit t = Toolkit.getDefaultToolkit();
         Image i = t.createImage(new byte[0]);
-        Cursor c = t.createCustomCursor(i, new Point(0,0), "c");
+        Cursor c = t.createCustomCursor(i, new Point(0, 0), "c");
         p.setCursor(c);
     }
 
