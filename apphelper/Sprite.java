@@ -21,7 +21,7 @@ public class Sprite {
     private int STEP = 3;
     private double rotationAngle = 0;
 
-    //------------------------------------------------------------------------------     
+    // ------------------------------------------------------------------------------
     public Sprite(int x, int y, String picName) {
         this.x = x;
         this.y = y;
@@ -41,7 +41,20 @@ public class Sprite {
         this.resize(width, height);
     }
 
-    //------------------------------------------------------------------------------
+    public Sprite(Sprite other) {
+        this.x = other.x;
+        this.y = other.y;
+        this.picture = other.picture;
+        this.rotated = other.rotated;
+        this.width = other.width;
+        this.height = other.height;
+        this.stepX = other.stepX;
+        this.stepY = other.stepY;
+        this.STEP = other.STEP;
+        this.rotationAngle = other.rotationAngle;
+    }
+
+    // ------------------------------------------------------------------------------
     public int getX() {
         return this.x;
     }
@@ -78,15 +91,15 @@ public class Sprite {
         this.stepY = stepY;
     }
 
-    //------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------
     public void draw(Graphics g) {
         Graphics2D g2d = (Graphics2D) g;
         AffineTransform backup = g2d.getTransform();
-               AffineTransform transform = new AffineTransform();           
-               transform.rotate(Math.toRadians(getRotationAngle()), x + width / 2, y + height / 2);
-              g2d.transform(transform);
-               g2d.drawImage(picture, x, y, null);
-               g2d.setTransform(backup);
+        AffineTransform transform = new AffineTransform();
+        transform.rotate(Math.toRadians(getRotationAngle()), x + width / 2, y + height / 2);
+        g2d.transform(transform);
+        g2d.drawImage(picture, x, y, null);
+        g2d.setTransform(backup);
 
     }
 
@@ -94,7 +107,7 @@ public class Sprite {
         return (x > this.x && x < this.x + this.width && y > this.y && y < this.y + this.height);
     }
 
-    //------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------
     public void moveOneStepX() {
         this.x = this.x + this.stepX;
     }
@@ -127,25 +140,28 @@ public class Sprite {
         return (this.y + this.height + this.stepY > boundary);
     }
 
-/**
- * Rotates the image by a certain number of degrees
- * @param angle 
- */
+    /**
+     * Rotates the image by a certain number of degrees
+     * 
+     * @param angle
+     */
     public void rotate(double angle) {
         setRotationAngle(getRotationAngle() + angle);
         setRotationAngle(getRotationAngle() % 360);
 
     }
 
-/**
- * Resize the sprite to new width and height
- * @param newWidth
- * @param newHeight 
- */
+    /**
+     * Resize the sprite to new width and height
+     * 
+     * @param newWidth
+     * @param newHeight
+     */
     public void resize(int newWidth, int newHeight) {
         BufferedImage resizedImage = new BufferedImage(newWidth, newHeight, this.picture.getType());
         Graphics2D g2d = resizedImage.createGraphics();
-        AffineTransform transform = AffineTransform.getScaleInstance((double) newWidth / this.width, (double) newHeight / this.height);
+        AffineTransform transform = AffineTransform.getScaleInstance((double) newWidth / this.width,
+                (double) newHeight / this.height);
         g2d.drawRenderedImage(this.picture, transform);
         g2d.dispose();
         this.picture = resizedImage;
@@ -154,7 +170,8 @@ public class Sprite {
     }
 
     /**
-     * Check collision with another sprite.  Just simple rectangular collision
+     * Check collision with another sprite. Just simple rectangular collision
+     * 
      * @param other
      * @return true if collided, false otherwise
      */

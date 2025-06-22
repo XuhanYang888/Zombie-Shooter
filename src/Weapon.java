@@ -6,8 +6,6 @@ import java.awt.*;
 public class Weapon {
 
     protected int recoil = 0;
-    protected int recoilLimit = 30;
-    protected boolean shooting = false;
 
     private Sprite frame = new Sprite(0, 0, "imgs/gun.png");
 
@@ -21,4 +19,3 @@ public class Weapon {
         frame.draw(g);
     }
 }
-

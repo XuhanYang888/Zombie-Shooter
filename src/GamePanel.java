@@ -6,6 +6,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Collections;
 
 public class GamePanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
@@ -39,6 +40,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     private static Weapon w;
 
+    boolean temp;
+
     public GamePanel(int width, int height, double scaleX, double scaleY) {
         GamePanel.width = width;
         GamePanel.height = height;
@@ -51,12 +54,12 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
         m.resize((int) (m.getWidth() / scaleX), (int) (m.getHeight() / scaleY));
 
-        center = new int[]{width / 2, height / 2};
+        center = new int[] { width / 2, height / 2 };
 
         health = 100;
         coins = 0;
 
-        generateZombies(1);
+        generateZombies(5);
 
         w = new Weapon();
 
@@ -73,10 +76,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
             m.setX(offsetX + (int) (width * 1.1));
             m.setY(offsetY + (int) (height * 1.4));
-
-            if (w.shooting) {
-                w.recoil += w.recoil < w.recoilLimit ? 1 : -4;
-            }
 
             repaint();
         });
@@ -115,7 +114,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         m.draw(g);
 
         // draw zombies
-        for (Zombie z : zombies) {
+        ArrayList<Zombie> reversed = new ArrayList<>(zombies);
+        Collections.reverse(reversed);
+        for (Zombie z : reversed) {
             z.draw(g);
         }
 
@@ -129,8 +130,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         g.fillRect(width / 2 - 2, height / 2 + 5 + w.recoil, 4, 15);
         g.drawString("❤️ " + health, 10, 30);
         g.drawString("⭕ " + coins, 10, 45);
-        g.drawString("" + count, 10, 60);
-        g.drawString("" + Zombie.count, 10, 80);
+
+        g.drawString("" + zombies.size(), 10, 60);
     }
 
     public static void generateZombies(int n) {
@@ -141,18 +142,17 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         }
     }
 
-    //all keys
-
+    // all keys
     @Override
     public void keyPressed(KeyEvent e) {
     }
 
-    //all keys
+    // all keys
     @Override
     public void keyReleased(KeyEvent e) {
     }
 
-    //this only happens for visible keys
+    // this only happens for visible keys
     @Override
     public void keyTyped(KeyEvent e) {
     }
@@ -180,10 +180,10 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     @Override
     public void mouseClicked(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON3) {
-            if (m.getX() - width / 2 < 0
-                    && m.getX() - width / 2 > -100
-                    && m.getY() - height / 2 < 0
-                    && m.getY() - height / 2 > -100) {
+            if (m.getX() - width / 2 <= 0
+                    && m.getX() - width / 2 >= -m.getWidth()
+                    && m.getY() - height / 2 <= 0
+                    && m.getY() - height / 2 >= -m.getHeight()) {
                 JOptionPane.showMessageDialog(this, "Accessing module 1");
             }
         }
@@ -192,26 +192,42 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     @Override
     public void mousePressed(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            w.shooting = true;
-            generateZombies(1);
+            w.recoil = 3;
+
+            for (int i = 0; i < zombies.size(); i++) {
+                Zombie z = zombies.get(i);
+                if (offsetX + z.x + (z.width * 0.15) - width / 2 <= 0
+                        && offsetX + z.x + (z.width * 0.15) - width / 2 >= -z.width * 0.4
+                        && offsetY + z.y + (z.height * 0.15) - height / 2 <= 0
+                        && offsetY + z.y + (z.height * 0.15) - height / 2 >= -z.height * 0.8) {
+                    z.health--;
+                    if (z.health == 0) {
+                        zombies.remove(i);
+                    }
+                    break;
+                }
+            }
         }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            w.shooting = false;
             w.recoil = 0;
         }
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        // throw new UnsupportedOperationException("Not supported yet."); // Generated
+        // from
+        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        // throw new UnsupportedOperationException("Not supported yet."); // Generated
+        // from
+        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
