@@ -8,27 +8,25 @@ public class Game extends JFrame {
 
     private GamePanel p;
 
-    private static double scaleX;
-    private static double scaleY;
     private static int width;
     private static int height;
+    private static double scale;
 
     public Game() {
         GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
         GraphicsConfiguration gc = gd.getDefaultConfiguration();
         DisplayMode dm = gd.getDisplayMode();
         AffineTransform af = gc.getDefaultTransform();
-        scaleX = af.getScaleX();
-        scaleY = af.getScaleY();
-        width = (int) (dm.getWidth() / scaleX);
-        height = (int) (dm.getHeight() / scaleY);
+        width = (int) (dm.getWidth() / af.getScaleX());
+        height = (int) (dm.getHeight() / af.getScaleY());
+        scale = 1920.0 / width;
 
         // create frame
         setTitle("Zombie Shooter");
         setSize(width, height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        p = new GamePanel(width, height, scaleX, scaleY);
+        p = new GamePanel(width, height, scale);
         add(p);
 
         Toolkit t = Toolkit.getDefaultToolkit();

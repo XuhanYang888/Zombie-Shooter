@@ -16,8 +16,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     protected static int width;
     protected static int height;
-    protected static double scaleX;
-    protected static double scaleY;
+    protected static double scale;
     private static int[] center;
 
     private static Robot robot;
@@ -36,23 +35,20 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     private static final ArrayList<Zombie> zombies = new ArrayList<>();
 
-    private static int count;
-
     private static Weapon w;
 
     boolean temp;
 
-    public GamePanel(int width, int height, double scaleX, double scaleY) {
+    public GamePanel(int width, int height, double scale) {
         GamePanel.width = width;
         GamePanel.height = height;
-        GamePanel.scaleX = scaleX;
-        GamePanel.scaleY = scaleY;
+        GamePanel.scale = scale;
 
-        bg.resize((int) (bg.getWidth() * 2.5 / GamePanel.scaleX), (int) (bg.getHeight() * 2.5 / GamePanel.scaleY));
+        bg.resize((int) (bg.getWidth() * 2.5 / GamePanel.scale), (int) (bg.getHeight() * 2.5 / GamePanel.scale));
         limitX = -bg.getWidth() + GamePanel.width;
         limitY = -bg.getHeight() + GamePanel.height;
 
-        m.resize((int) (m.getWidth() / scaleX), (int) (m.getHeight() / scaleY));
+        m.resize((int) (m.getWidth() / scale), (int) (m.getHeight() / scale));
 
         center = new int[] { width / 2, height / 2 };
 
@@ -63,22 +59,18 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
         w = new Weapon();
 
-        t = new Timer(7, e -> {
+        t = new Timer(1, e -> {
             offsetX -= 2 * deltaX;
-            offsetX = offsetX > 0 ? 0 : offsetX;
-            offsetX = offsetX < limitX ? limitX : offsetX;
             offsetY -= 2 * deltaY;
-            offsetY = offsetY > 0 ? 0 : offsetY;
-            offsetY = offsetY < limitY ? limitY : offsetY;
-
-            bg.setX(offsetX);
-            bg.setY(offsetY);
-
-            m.setX(offsetX + (int) (width * 1.1));
-            m.setY(offsetY + (int) (height * 1.4));
 
             repaint();
         });
+
+        new Timer(100, e -> {
+            for (Zombie z : zombies) {
+                z.nextFrame();
+            }
+        }).start();
 
         addKeyListener(this);
         addMouseListener(this);
@@ -99,13 +91,14 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
 
-        count++;
-        count = count % 7;
-        if (count == 0) {
-            for (Zombie z : zombies) {
-                z.nextFrame();
-            }
-        }
+        offsetX = Math.max(limitX, Math.min(0, offsetX));
+        offsetY = Math.max(limitY, Math.min(0, offsetY));
+
+        bg.setX(offsetX);
+        bg.setY(offsetY);
+
+        m.setX(offsetX + (int) (width * 1.1));
+        m.setY(offsetY + (int) (height * 1.4));
 
         // draw background
         bg.draw(g);
@@ -138,13 +131,21 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         for (int i = 0; i < n; i++) {
             zombies.add(new Zombie((int) (width * (0.6 + r.nextDouble(0.1))),
                     (int) (height * (1.25 + r.nextDouble(0.08))),
-                    0.4 / scaleX, r.nextInt(5)));
+                    0.4 / scale, r.nextInt(5)));
         }
     }
 
     // all keys
     @Override
     public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_F) {
+            if (m.getX() - width / 2 <= 0
+                    && m.getX() - width / 2 >= -m.getWidth()
+                    && m.getY() - height / 2 <= 0
+                    && m.getY() - height / 2 >= -m.getHeight()) {
+                JOptionPane.showMessageDialog(this, "Accessing module 1");
+            }
+        }
     }
 
     // all keys
@@ -179,14 +180,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON3) {
-            if (m.getX() - width / 2 <= 0
-                    && m.getX() - width / 2 >= -m.getWidth()
-                    && m.getY() - height / 2 <= 0
-                    && m.getY() - height / 2 >= -m.getHeight()) {
-                JOptionPane.showMessageDialog(this, "Accessing module 1");
-            }
-        }
     }
 
     @Override
