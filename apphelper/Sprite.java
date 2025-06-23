@@ -196,4 +196,16 @@ public class Sprite {
         this.rotationAngle = rotationAngle;
     }
 
+    public void flipHorizontal() {
+        AffineTransform af = new AffineTransform();
+        af.scale(-1, 1);
+        af.translate(-width, 0);
+
+        BufferedImage flippedImage = new BufferedImage(width, height, picture.getType());
+        Graphics2D g2d = flippedImage.createGraphics();
+        g2d.drawRenderedImage(picture, af);
+        g2d.dispose();
+
+        this.picture = flippedImage;
+    }
 }

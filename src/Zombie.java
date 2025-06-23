@@ -5,8 +5,6 @@ import java.awt.*;
 
 public class Zombie {
 
-    protected static int count = 0;
-
     protected final Sprite[] FRAMES = {
             new Sprite(0, 0, "imgs/zombie/zombie0.png"),
             new Sprite(0, 0, "imgs/zombie/zombie1.png"),
@@ -21,9 +19,9 @@ public class Zombie {
 
     protected int x;
     protected int y;
-
     protected int health;
-    private int damage;
+    protected int damage;
+    private int direction;
 
     private int cur;
 
@@ -31,40 +29,74 @@ public class Zombie {
         this.x = x;
         this.y = y;
         this.scale = scale;
-        width = (int) (width * scale);
-        height = (int) (height * scale);
+        width = (int) (width * 0.4 / scale);
+        height = (int) (height * 0.4 / scale);
         health = 10;
-        damage = 5;
+        damage = 10;
+        direction = 1;
         cur = frame;
-
-        count++;
     }
 
-    public void draw(Graphics g) {
+    public void draw(Graphics g, int offsetX, int offsetY) {
         Sprite temp = new Sprite(FRAMES[cur]);
-        temp.setX(GamePanel.offsetX + x);
-        temp.setY(GamePanel.offsetY + y);
-        temp.resize(width, height);
+        temp.setX(offsetX + x);
+        temp.setY(offsetY + y);
+        temp.resize((int) (width * scale), (int) (height * scale));
         temp.draw(g);
+        temp = null;
 
-        g.setColor(Color.red);
-        g.fillRect(GamePanel.offsetX + x, GamePanel.offsetY + y - (int) (height * 0.2), (int) (width * health / 10),
-                (int) (height * 0.1));
-        g.drawString("" + health, GamePanel.offsetX + x, GamePanel.offsetY + y);
+        if (health < 10) {
+            g.setColor(Color.black);
+            g.fillRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2), width,
+                    (int) (height * 0.1));
+            g.setColor(Color.red);
+            g.fillRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2),
+                    (int) (width * health / 10), (int) (height * 0.1));
+            g.drawString("" + health, offsetX + x + (int) (width * (scale - 1) * 0.3), offsetY + y);
+            g.setColor(Color.black);
+            g.drawRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2), width,
+                    (int) (height * 0.1));
+        }
+        /**
+         *
+         * g.setColor(Color.YELLOW); if (direction == 1) {
+         * g.drawRect(GamePanel.offsetX + x + (int) (width * scale * 0.15),
+         * GamePanel.offsetY + y + (int) (height * scale * 0.15), (int) (width *
+         * scale * 0.5), (int) (height * scale * 0.8)); } else {
+         * g.drawRect(GamePanel.offsetX + x + (int) (width * scale * 0.35),
+         * GamePanel.offsetY + y + (int) (height * scale * 0.15), (int) (width *
+         * scale * 0.5), (int) (height * scale * 0.8)); }
+         *
+         */
+    }
 
-        g.drawRect(GamePanel.offsetX + x + (int) (width * 0.15), GamePanel.offsetY + y + (int) (height * 0.15),
-                (int) (width * 0.4), (int) (height * 0.8));
-
-        g.setColor(Color.black);
-        g.drawRect(GamePanel.offsetX + x, GamePanel.offsetY + y - (int) (height * 0.2), width, (int) (height * 0.1));
+    public boolean inRange(int offsetX, int offsetY) {
+        if (direction == 1) {
+            return (offsetX + x + (width * scale * 0.15) - GamePanel.width / 2 <= 0
+                    && offsetX + x + (width * scale * 0.15) - GamePanel.width / 2 >= -width * scale * 0.5
+                    && offsetY + y + (height * scale * 0.15) - GamePanel.height / 2 <= 0
+                    && offsetY + y + (height * scale * 0.15) - GamePanel.height / 2 >= -height * scale * 0.8);
+        } else {
+            return (offsetX + x + (width * scale * 0.35) - GamePanel.width / 2 <= 0
+                    && offsetX + x + (width * scale * 0.35) - GamePanel.width / 2 >= -width * scale * 0.5
+                    && offsetY + y + (height * scale * 0.15) - GamePanel.height / 2 <= 0
+                    && offsetY + y + (height * scale * 0.15) - GamePanel.height / 2 >= -height * scale * 0.8);
+        }
     }
 
     public void nextFrame() {
         cur++;
         cur = cur % 5;
         if (cur == 0) {
-            x += 10;
-            scale += 0.1;
+            x += direction * scale * 8;
+            scale += 0.02;
+        }
+    }
+
+    public void flipHorizontal() {
+        for (Sprite s : FRAMES) {
+            direction = -direction;
+            s.flipHorizontal();
         }
     }
 }

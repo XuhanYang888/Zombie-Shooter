@@ -16,11 +16,14 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     protected static int width;
     protected static int height;
-    protected static double scale;
+    protected static double globalScale;
     private static int[] center;
 
     private static Robot robot;
-    private static Timer t;
+    private static Timer repaint;
+    private static Timer viewOffset;
+    private static Timer zombieFrames;
+
     private static int deltaX;
     private static int deltaY;
     protected static int offsetX;
@@ -39,38 +42,55 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     boolean temp;
 
-    public GamePanel(int width, int height, double scale) {
+    public GamePanel(int width, int height, double globalScale) {
         GamePanel.width = width;
         GamePanel.height = height;
-        GamePanel.scale = scale;
+        GamePanel.globalScale = globalScale;
 
-        bg.resize((int) (bg.getWidth() * 2.5 / GamePanel.scale), (int) (bg.getHeight() * 2.5 / GamePanel.scale));
+        bg.resize((int) (bg.getWidth() * 2.5 / GamePanel.globalScale),
+                (int) (bg.getHeight() * 2.5 / GamePanel.globalScale));
         limitX = -bg.getWidth() + GamePanel.width;
         limitY = -bg.getHeight() + GamePanel.height;
 
-        m.resize((int) (m.getWidth() / scale), (int) (m.getHeight() / scale));
+        m.resize((int) (m.getWidth() / globalScale), (int) (m.getHeight() / globalScale));
 
         center = new int[] { width / 2, height / 2 };
 
         health = 100;
         coins = 0;
 
-        generateZombies(5);
+        generateZombies(3);
 
         w = new Weapon();
 
-        t = new Timer(1, e -> {
+        viewOffset = new Timer(1, e -> {
             offsetX -= 2 * deltaX;
             offsetY -= 2 * deltaY;
+            offsetX = Math.max(limitX, Math.min(0, offsetX));
+            offsetY = Math.max(limitY, Math.min(0, offsetY));
+        });
 
+        repaint = new Timer(10, e -> {
             repaint();
         });
 
-        new Timer(100, e -> {
-            for (Zombie z : zombies) {
+        zombieFrames = new Timer(80, e -> {
+            for (int i = 0; i < zombies.size(); i++) {
+                Zombie z = zombies.get(i);
                 z.nextFrame();
+                if (r.nextInt(20) == 0) {
+                    z.flipHorizontal();
+                }
+                if (z.scale >= 2.5) {
+                    zombies.remove(i);
+                    health -= z.damage;
+                }
             }
-        }).start();
+        });
+
+        // new Timer(5000, e -> {
+        // generateZombies(3);
+        // }).start();
 
         addKeyListener(this);
         addMouseListener(this);
@@ -84,15 +104,14 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
             e.printStackTrace();
         }
 
-        t.start();
+        viewOffset.start();
+        repaint.start();
+        zombieFrames.start();
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-
-        offsetX = Math.max(limitX, Math.min(0, offsetX));
-        offsetY = Math.max(limitY, Math.min(0, offsetY));
 
         bg.setX(offsetX);
         bg.setY(offsetY);
@@ -110,7 +129,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         ArrayList<Zombie> reversed = new ArrayList<>(zombies);
         Collections.reverse(reversed);
         for (Zombie z : reversed) {
-            z.draw(g);
+            z.draw(g, offsetX, offsetY);
         }
 
         w.draw(g);
@@ -129,9 +148,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     public static void generateZombies(int n) {
         for (int i = 0; i < n; i++) {
-            zombies.add(new Zombie((int) (width * (0.6 + r.nextDouble(0.1))),
-                    (int) (height * (1.25 + r.nextDouble(0.08))),
-                    0.4 / scale, r.nextInt(5)));
+            zombies.add(new Zombie((int) (width * (0.7 + r.nextDouble(0.1))),
+                    (int) (height * (1.3 + r.nextDouble(0.05))),
+                    globalScale, r.nextInt(5)));
         }
     }
 
@@ -189,13 +208,11 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
             for (int i = 0; i < zombies.size(); i++) {
                 Zombie z = zombies.get(i);
-                if (offsetX + z.x + (z.width * 0.15) - width / 2 <= 0
-                        && offsetX + z.x + (z.width * 0.15) - width / 2 >= -z.width * 0.4
-                        && offsetY + z.y + (z.height * 0.15) - height / 2 <= 0
-                        && offsetY + z.y + (z.height * 0.15) - height / 2 >= -z.height * 0.8) {
+                if (z.inRange(offsetX, offsetY)) {
                     z.health--;
                     if (z.health == 0) {
                         zombies.remove(i);
+                        coins += 10;
                     }
                     break;
                 }
