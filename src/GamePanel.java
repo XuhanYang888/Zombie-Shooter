@@ -14,6 +14,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     private static Sprite m = new Sprite(0, 0, "imgs/m1.png");
 
+    private static Sprite damage = new Sprite(0, 0, "imgs/damage.png");
+
     protected static int width;
     protected static int height;
     protected static double globalScale;
@@ -32,15 +34,20 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     private static int limitY;
 
     private static int health;
+    private static boolean red;
     private static int coins;
 
     private static final Random r = new Random();
 
     private static final ArrayList<Zombie> zombies = new ArrayList<>();
 
+    private static int wave;
+
     private static Weapon w;
 
-    boolean temp;
+    static Timer t;
+
+    static Timer hit;
 
     public GamePanel(int width, int height, double globalScale) {
         GamePanel.width = width;
@@ -54,12 +61,15 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
         m.resize((int) (m.getWidth() / globalScale), (int) (m.getHeight() / globalScale));
 
+        damage.resize(width, height);
+
         center = new int[] { width / 2, height / 2 };
 
         health = 100;
+        red = false;
         coins = 0;
 
-        generateZombies(3);
+        wave = 0;
 
         w = new Weapon();
 
@@ -70,27 +80,42 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
             offsetY = Math.max(limitY, Math.min(0, offsetY));
         });
 
-        repaint = new Timer(10, e -> {
+        repaint = new Timer(5, e -> {
             repaint();
         });
 
+        hit = new Timer(1000, e -> {
+            red = false;
+        });
+
         zombieFrames = new Timer(80, e -> {
-            for (int i = 0; i < zombies.size(); i++) {
-                Zombie z = zombies.get(i);
-                z.nextFrame();
-                if (r.nextInt(20) == 0) {
-                    z.flipHorizontal();
-                }
-                if (z.scale >= 2.5) {
-                    zombies.remove(i);
-                    health -= z.damage;
+            if (zombies.isEmpty()) {
+                wave++;
+                generateZombies(2 + wave, 5 * wave, 5 * wave);
+            } else {
+                for (int i = 0; i < zombies.size(); i++) {
+                    Zombie z = zombies.get(i);
+                    z.nextFrame();
+                    if (r.nextInt(20) == 0) {
+                        z.flipHorizontal();
+                    }
+                    if (z.scale >= 2.5) {
+                        zombies.remove(i);
+                        health -= z.damage;
+                        red = true;
+                        hit.restart();
+                    }
                 }
             }
         });
 
-        // new Timer(5000, e -> {
-        // generateZombies(3);
-        // }).start();
+        t = new Timer(80, e -> {
+            w.frame++;
+            if (w.frame == 19) {
+                w.frame = 0;
+                t.stop();
+            }
+        });
 
         addKeyListener(this);
         addMouseListener(this);
@@ -144,13 +169,18 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         g.drawString("⭕ " + coins, 10, 45);
 
         g.drawString("" + zombies.size(), 10, 60);
+        g.drawString("Current Wave: " + wave, 10, 60);
+
+        if (red) {
+            damage.draw(g);
+        }
     }
 
-    public static void generateZombies(int n) {
+    public static void generateZombies(int n, int h, int d) {
         for (int i = 0; i < n; i++) {
             zombies.add(new Zombie((int) (width * (0.7 + r.nextDouble(0.1))),
                     (int) (height * (1.3 + r.nextDouble(0.05))),
-                    globalScale, r.nextInt(5)));
+                    globalScale, r.nextInt(5), h, d));
         }
     }
 
@@ -170,6 +200,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     // all keys
     @Override
     public void keyReleased(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_R) {
+            t.start();
+        }
     }
 
     // this only happens for visible keys
@@ -212,7 +245,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
                     z.health--;
                     if (z.health == 0) {
                         zombies.remove(i);
-                        coins += 10;
+                        coins += wave * 10;
                     }
                     break;
                 }

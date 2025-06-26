@@ -20,19 +20,20 @@ public class Zombie {
     protected int x;
     protected int y;
     protected int health;
+    protected int originalHealth;
     protected int damage;
     private int direction;
 
     private int cur;
 
-    public Zombie(int x, int y, double scale, int frame) {
+    public Zombie(int x, int y, double scale, int frame, int health, int damage) {
         this.x = x;
         this.y = y;
         this.scale = scale;
         width = (int) (width * 0.4 / scale);
         height = (int) (height * 0.4 / scale);
-        health = 10;
-        damage = 10;
+        this.health = this.originalHealth = health;
+        this.damage = damage;
         direction = 1;
         cur = frame;
     }
@@ -45,13 +46,13 @@ public class Zombie {
         temp.draw(g);
         temp = null;
 
-        if (health < 10) {
+        if (health < originalHealth) {
             g.setColor(Color.black);
             g.fillRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2), width,
                     (int) (height * 0.1));
             g.setColor(Color.red);
             g.fillRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2),
-                    (int) (width * health / 10), (int) (height * 0.1));
+                    (int) (width * health / originalHealth), (int) (height * 0.1));
             g.drawString("" + health, offsetX + x + (int) (width * (scale - 1) * 0.3), offsetY + y);
             g.setColor(Color.black);
             g.drawRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2), width,
