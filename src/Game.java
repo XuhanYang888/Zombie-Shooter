@@ -6,6 +6,8 @@ import java.awt.geom.AffineTransform;
 
 public class Game extends JFrame {
 
+    private CardLayout cardLayout = new CardLayout();
+    private JPanel main;
     private GamePanel p;
 
     private static int width;
@@ -26,13 +28,36 @@ public class Game extends JFrame {
         setSize(width, height);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        p = new GamePanel(width, height, globalScale);
-        add(p);
+        main = new JPanel(cardLayout);
+        JPanel panel2 = createPanel("Panel 2", Color.cyan);
 
-        Toolkit t = Toolkit.getDefaultToolkit();
-        Image i = t.createImage(new byte[0]);
-        Cursor c = t.createCustomCursor(i, new Point(0, 0), "c");
-        p.setCursor(c);
+        p = new GamePanel(width, height, globalScale);
+        main.add(p, "game");
+        main.add(panel2, "p2");
+        JPanel buttonPanel = new JPanel();
+        JButton switchButton1 = new JButton("Show game");
+        JButton switchButton2 = new JButton("Show Panel 2");
+
+        switchButton1.addActionListener(e -> cardLayout.show(main, "game"));
+        switchButton2.addActionListener(e -> cardLayout.show(main, "p2"));
+
+        buttonPanel.add(switchButton1);
+        buttonPanel.add(switchButton2);
+
+        add(main, BorderLayout.CENTER);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Toolkit t = Toolkit.getDefaultToolkit();
+        // Image i = t.createImage(new byte[0]);
+        // Cursor c = t.createCustomCursor(i, new Point(0, 0), "c");
+        // p.setCursor(c);
+    }
+
+    private JPanel createPanel(String text, Color color) {
+        JPanel panel = new JPanel();
+        panel.setBackground(color);
+        panel.add(new JLabel(text));
+        return panel;
     }
 
     public static void main(String[] args) {

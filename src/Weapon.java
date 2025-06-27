@@ -5,13 +5,20 @@ import java.awt.*;
 
 public class Weapon {
 
-    protected int recoil = 0;
+    protected int curAmmo;
+    protected int reserveAmmo;
 
-    protected int frame = 0;
+    protected int recoil;
+
+    protected int frame;
 
     private final Sprite[] FRAMES = new Sprite[21];
 
     public Weapon() {
+        curAmmo = 20;
+        reserveAmmo = 100;
+        recoil = 0;
+        frame = 0;
         for (int i = 0; i < 10; i++) {
             FRAMES[i] = new Sprite(0, 0, "imgs/pistol/pistol_0" + i + ".png");
         }

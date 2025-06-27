@@ -12,7 +12,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     private static final Sprite bg = new Sprite(0, 0, "imgs/bg.png");
 
-    private static Sprite m = new Sprite(0, 0, "imgs/m1.png");
+    private static Sprite m = new Sprite(0, 0, "imgs/moduleTest.png");
+
+    private static Sprite exit = new Sprite(0, 0, "imgs/moduleTest.png");
 
     private static Sprite damage = new Sprite(0, 0, "imgs/damage.png");
 
@@ -36,6 +38,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     private static int health;
     private static boolean red;
     private static int coins;
+    private static int target;
 
     private static final Random r = new Random();
 
@@ -60,6 +63,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         limitY = -bg.getHeight() + GamePanel.height;
 
         m.resize((int) (m.getWidth() / globalScale), (int) (m.getHeight() / globalScale));
+        exit.resize((int) (exit.getWidth() / globalScale), (int) (exit.getHeight() / globalScale));
 
         damage.resize(width, height);
 
@@ -68,6 +72,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         health = 100;
         red = false;
         coins = 0;
+        target = 100;
 
         wave = 0;
 
@@ -114,6 +119,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
             if (w.frame == 19) {
                 w.frame = 0;
                 t.stop();
+                int amount = Math.min(w.reserveAmmo, 20 - w.curAmmo);
+                w.reserveAmmo -= amount;
+                w.curAmmo += amount;
             }
         });
 
@@ -143,12 +151,15 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
         m.setX(offsetX + (int) (width * 1.1));
         m.setY(offsetY + (int) (height * 1.4));
+        exit.setX(offsetX + (int) (width * 2.1));
+        exit.setY(offsetY + (int) (height * 1.4));
 
         // draw background
         bg.draw(g);
 
         // draw modules
         m.draw(g);
+        exit.draw(g);
 
         // draw zombies
         ArrayList<Zombie> reversed = new ArrayList<>(zombies);
@@ -170,6 +181,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
         g.drawString("" + zombies.size(), 10, 60);
         g.drawString("Current Wave: " + wave, 10, 60);
+        g.drawString(w.curAmmo + " / " + w.reserveAmmo + " Ammo", 10, 75);
 
         if (red) {
             damage.draw(g);
@@ -184,25 +196,64 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         }
     }
 
+    public void ammoModule() {
+        int choice = JOptionPane.showConfirmDialog(this, "Buy 100 ammo for $20?");
+        if (choice == 0) {
+            if (coins >= 20) {
+                coins -= 20;
+                w.reserveAmmo += 100;
+            }
+        }
+    }
+
+    public void exit() {
+        if (coins >= target) {
+            JOptionPane.showMessageDialog(this,
+                    "You have collected " + coins + " / " + target + " required coins. You won!");
+            // repaint.stop();
+            viewOffset.stop();
+            zombieFrames.stop();
+            t.stop();
+            hit.stop();
+        } else {
+            JOptionPane.showMessageDialog(this,
+                    "You have collected " + coins + " / " + target + " required coins. Keep working!");
+        }
+    }
+
     // all keys
     @Override
     public void keyPressed(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_F) {
-            if (m.getX() - width / 2 <= 0
-                    && m.getX() - width / 2 >= -m.getWidth()
-                    && m.getY() - height / 2 <= 0
-                    && m.getY() - height / 2 >= -m.getHeight()) {
-                JOptionPane.showMessageDialog(this, "Accessing module 1");
-            }
+        switch (e.getKeyCode()) {
+            case KeyEvent.VK_F:
+                if (m.getX() - width / 2 <= 0
+                        && m.getX() - width / 2 >= -m.getWidth()
+                        && m.getY() - height / 2 <= 0
+                        && m.getY() - height / 2 >= -m.getHeight()) {
+                    ammoModule();
+                } else if (exit.getX() - width / 2 <= 0
+                        && exit.getX() - width / 2 >= -exit.getWidth()
+                        && exit.getY() - height / 2 <= 0
+                        && exit.getY() - height / 2 >= -exit.getHeight()) {
+                    exit();
+                }
+                break;
+            case KeyEvent.VK_R:
+                if (w.reserveAmmo > 0) {
+                    t.start();
+                }
+                break;
+            case KeyEvent.VK_ENTER:
+                coins += 1000;
+                break;
+            default:
+                break;
         }
     }
 
     // all keys
     @Override
     public void keyReleased(KeyEvent e) {
-        if (e.getKeyCode() == KeyEvent.VK_R) {
-            t.start();
-        }
     }
 
     // this only happens for visible keys
@@ -236,7 +287,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1) {
+        if (e.getButton() == MouseEvent.BUTTON1 && w.frame == 0 && w.curAmmo > 0) {
+            w.curAmmo--;
             w.recoil = 3;
 
             for (int i = 0; i < zombies.size(); i++) {
