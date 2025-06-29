@@ -10,7 +10,7 @@ import java.util.Collections;
 
 public class GamePanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
-    private static final Sprite bg = new Sprite(0, 0, "imgs/bg.png");
+    private static final Sprite bg = new Sprite(0, 0, "imgs/bg_1.png");
 
     private static Sprite m = new Sprite(0, 0, "imgs/moduleTest.png");
 
@@ -57,8 +57,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         GamePanel.height = height;
         GamePanel.globalScale = globalScale;
 
-        bg.resize((int) (bg.getWidth() * 2.5 / GamePanel.globalScale),
-                (int) (bg.getHeight() * 2.5 / GamePanel.globalScale));
+        bg.resize((int) (bg.getWidth() * 3.75 / globalScale), (int) (bg.getHeight() * 3.75 / globalScale));
         limitX = -bg.getWidth() + GamePanel.width;
         limitY = -bg.getHeight() + GamePanel.height;
 
