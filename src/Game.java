@@ -5,10 +5,12 @@ import javax.swing.*;
 import java.awt.geom.AffineTransform;
 
 public class Game extends JFrame {
-
-    private CardLayout cardLayout = new CardLayout();
-    private JPanel main;
-    private GamePanel p;
+    
+    private static CardLayout cardLayout = new CardLayout();
+    private static JPanel main;
+    private static GamePanel game;
+    private static JPanel start;
+    private static JPanel end;
 
     private static int width;
     private static int height;
@@ -29,35 +31,25 @@ public class Game extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         main = new JPanel(cardLayout);
-        JPanel panel2 = createPanel("Panel 2", Color.cyan);
+        start = new StartPanel(width, height, globalScale);
 
-        p = new GamePanel(width, height, globalScale);
-        main.add(p, "game");
-        main.add(panel2, "p2");
-        JPanel buttonPanel = new JPanel();
-        JButton switchButton1 = new JButton("Show game");
-        JButton switchButton2 = new JButton("Show Panel 2");
-
-        switchButton1.addActionListener(e -> cardLayout.show(main, "game"));
-        switchButton2.addActionListener(e -> cardLayout.show(main, "p2"));
-
-        buttonPanel.add(switchButton1);
-        buttonPanel.add(switchButton2);
-
+        main.add(start, "start");
         add(main, BorderLayout.CENTER);
-        add(buttonPanel, BorderLayout.SOUTH);
-
-        // Toolkit t = Toolkit.getDefaultToolkit();
-        // Image i = t.createImage(new byte[0]);
-        // Cursor c = t.createCustomCursor(i, new Point(0, 0), "c");
-        // p.setCursor(c);
     }
 
-    private JPanel createPanel(String text, Color color) {
-        JPanel panel = new JPanel();
-        panel.setBackground(color);
-        panel.add(new JLabel(text));
-        return panel;
+    public static void showGame() {
+        game = new GamePanel(width, height, globalScale);
+        main.add(game, "game");
+        cardLayout.show(main, "game");
+        game.requestFocusInWindow();
+    }
+
+    public static void showEnding(boolean won) {
+        end = new EndPanel(width, height, globalScale, won);
+        main.add(end, "end");
+        cardLayout.show(main, "end");
+        end.requestFocusInWindow();
+        game = null;
     }
 
     public static void main(String[] args) {

@@ -1,7 +1,7 @@
 package src;
 
-import javax.swing.*;
 import apphelper.*;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -11,11 +11,8 @@ import java.util.Collections;
 public class GamePanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
     private static final Sprite bg = new Sprite(0, 0, "imgs/bg_1.png");
-
     private static Sprite m = new Sprite(0, 0, "imgs/moduleTest.png");
-
     private static Sprite exit = new Sprite(0, 0, "imgs/moduleTest.png");
-
     private static Sprite damage = new Sprite(0, 0, "imgs/damage.png");
 
     protected static int width;
@@ -49,7 +46,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     private static Weapon w;
 
     static Timer t;
-
     static Timer hit;
 
     public GamePanel(int width, int height, double globalScale) {
@@ -58,6 +54,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         GamePanel.globalScale = globalScale;
 
         bg.resize((int) (bg.getWidth() * 3.75 / globalScale), (int) (bg.getHeight() * 3.75 / globalScale));
+        offsetX = (int) (-bg.getWidth() * 0.09);
+        offsetY = (int) (-bg.getHeight() * 0.32);
         limitX = -bg.getWidth() + GamePanel.width;
         limitY = -bg.getHeight() + GamePanel.height;
 
@@ -106,8 +104,17 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
                     if (z.scale >= 2.5) {
                         zombies.remove(i);
                         health -= z.damage;
-                        red = true;
-                        hit.restart();
+                        if (health > 0) {
+                            red = true;
+                            hit.restart();
+                        } else {
+                            repaint.stop();
+                            viewOffset.stop();
+                            zombieFrames.stop();
+                            t.stop();
+                            hit.stop();
+                            Game.showEnding(false);
+                        }
                     }
                 }
             }
@@ -139,6 +146,11 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         viewOffset.start();
         repaint.start();
         zombieFrames.start();
+
+        Toolkit t = Toolkit.getDefaultToolkit();
+        Image i = t.createImage(new byte[0]);
+        Cursor c = t.createCustomCursor(i, new Point(0, 0), "c");
+        setCursor(c);
     }
 
     @Override
@@ -209,11 +221,13 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         if (coins >= target) {
             JOptionPane.showMessageDialog(this,
                     "You have collected " + coins + " / " + target + " required coins. You won!");
-            // repaint.stop();
+            repaint.stop();
             viewOffset.stop();
             zombieFrames.stop();
             t.stop();
             hit.stop();
+
+            Game.showEnding(true);
         } else {
             JOptionPane.showMessageDialog(this,
                     "You have collected " + coins + " / " + target + " required coins. Keep working!");
@@ -244,6 +258,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
                 break;
             case KeyEvent.VK_ENTER:
                 coins += 1000;
+                break;
+            case KeyEvent.VK_ESCAPE:
+                Game.showEnding(false);
                 break;
             default:
                 break;
@@ -313,15 +330,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // throw new UnsupportedOperationException("Not supported yet."); // Generated
-        // from
-        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // throw new UnsupportedOperationException("Not supported yet."); // Generated
-        // from
-        // nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
