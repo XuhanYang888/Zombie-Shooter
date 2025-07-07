@@ -10,9 +10,9 @@ import java.util.Collections;
 
 public class GamePanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
-    private static final Sprite bg = new Sprite(0, 0, "imgs/bg_1.png");
-    private static Sprite m = new Sprite(0, 0, "imgs/moduleTest.png");
-    private static Sprite exit = new Sprite(0, 0, "imgs/moduleTest.png");
+    private static final Sprite bg = new Sprite(0, 0, "imgs/bg.png");
+    private static Sprite store = new Sprite(0, 0, "imgs/store.png");
+    private static Sprite exit = new Sprite(0, 0, "imgs/exit.png");
     private static Sprite damage = new Sprite(0, 0, "imgs/damage.png");
 
     protected static int width;
@@ -55,12 +55,12 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
         bg.resize((int) (bg.getWidth() * 3.75 / globalScale), (int) (bg.getHeight() * 3.75 / globalScale));
         offsetX = (int) (-bg.getWidth() * 0.09);
-        offsetY = (int) (-bg.getHeight() * 0.32);
+        offsetY = (int) (-bg.getHeight() * 0.32 / 1.5);
         limitX = -bg.getWidth() + GamePanel.width;
         limitY = -bg.getHeight() + GamePanel.height;
 
-        m.resize((int) (m.getWidth() / globalScale), (int) (m.getHeight() / globalScale));
-        exit.resize((int) (exit.getWidth() / globalScale), (int) (exit.getHeight() / globalScale));
+        store.resize((int) (264 / globalScale), (int) (404 / globalScale));
+        exit.resize((int) (280 * 1.7 / globalScale), (int) (120 * 1.7 / globalScale));
 
         damage.resize(width, height);
 
@@ -160,16 +160,16 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         bg.setX(offsetX);
         bg.setY(offsetY);
 
-        m.setX(offsetX + (int) (width * 1.1));
-        m.setY(offsetY + (int) (height * 1.4));
-        exit.setX(offsetX + (int) (width * 2.1));
-        exit.setY(offsetY + (int) (height * 1.4));
+        store.setX(offsetX + (int) (width * 1.343));
+        store.setY(offsetY + (int) (height * 0.75));
+        exit.setX(offsetX + (int) (width * 2.03));
+        exit.setY(offsetY + (int) (height * 1.3 / 1.5));
 
         // draw background
         bg.draw(g);
 
         // draw modules
-        m.draw(g);
+        store.draw(g);
         exit.draw(g);
 
         // draw zombies
@@ -202,7 +202,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     public static void generateZombies(int n, int h, int d) {
         for (int i = 0; i < n; i++) {
             zombies.add(new Zombie((int) (width * (0.7 + r.nextDouble(0.1))),
-                    (int) (height * (1.3 + r.nextDouble(0.05))),
+                    (int) (height * (1.3 / 1.5 + r.nextDouble(0.05))),
                     globalScale, r.nextInt(5), h, d));
         }
     }
@@ -239,10 +239,10 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_F:
-                if (m.getX() - width / 2 <= 0
-                        && m.getX() - width / 2 >= -m.getWidth()
-                        && m.getY() - height / 2 <= 0
-                        && m.getY() - height / 2 >= -m.getHeight()) {
+                if (store.getX() - width / 2 <= 0
+                        && store.getX() - width / 2 >= -store.getWidth()
+                        && store.getY() - height / 2 <= 0
+                        && store.getY() - height / 2 >= -store.getHeight()) {
                     ammoModule();
                 } else if (exit.getX() - width / 2 <= 0
                         && exit.getX() - width / 2 >= -exit.getWidth()

@@ -22,7 +22,7 @@ public class EndPanel extends JPanel {
 
         bg.resize((int) (bg.getWidth() * 3.75 / globalScale), (int) (bg.getHeight() * 3.75 / globalScale));
         bg.setX((int) (-bg.getWidth() * 0.09));
-        bg.setY((int) (-bg.getHeight() * 0.32));
+        bg.setY((int) (-bg.getHeight() * 0.32 / 1.5));
 
         setLayout(null);
 
