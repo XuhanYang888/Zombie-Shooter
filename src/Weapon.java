@@ -2,43 +2,73 @@ package src;
 
 import apphelper.*;
 import java.awt.*;
+import javax.swing.Timer;
 
 public class Weapon {
 
-    protected int curAmmo;
-    protected int reserveAmmo;
-
-    protected int recoil;
-
+    private int curAmmo;
+    private int reserveAmmo;
+    private int maxAmmo;
     protected int frame;
 
     private final Sprite[] FRAMES = new Sprite[21];
 
-    public Weapon() {
-        curAmmo = 20;
-        reserveAmmo = 100;
-        recoil = 0;
-        frame = 0;
-        for (int i = 0; i < 10; i++) {
-            FRAMES[i] = new Sprite(0, 0, "imgs/pistol/pistol_0" + i + ".png");
-        }
-        for (int i = 0; i < 10; i++) {
-            FRAMES[10 + i] = new Sprite(0, 0, "imgs/pistol/pistol_1" + i + ".png");
-        }
-        FRAMES[20] = new Sprite(0, 0, "imgs/pistol/pistol_20.png");
+    private Timer reload;
 
-        for (Sprite s : FRAMES) {
-            s.resize((int) (s.getWidth() / GamePanel.globalScale), (int) (s.getHeight() / GamePanel.globalScale));
-            s.setX((int) (GamePanel.width * 0.6));
-            s.setY(GamePanel.height - s.getHeight());
-        }
+    public Weapon(int width, int height, double scale) {
+        curAmmo = maxAmmo = 20;
+        reserveAmmo = 100;
+        frame = 0;
+        int w = (int) (704 / scale);
+        int h = (int) (875 / scale);
+        int x = (int) (width * 0.6);
+        int y = height - 875;
+        for (int i = 0; i < 10; i++)
+            FRAMES[i] = new Sprite(x, y, "imgs/pistol/pistol_0" + i + ".png", w, h);
+        for (int i = 0; i < 10; i++)
+            FRAMES[10 + i] = new Sprite(x, y, "imgs/pistol/pistol_1" + i + ".png", w, h);
+        FRAMES[20] = new Sprite(x, y, "imgs/pistol/shoot.png", w, h);
+
+        reload = new Timer(80, e -> {
+            frame++;
+            if (frame == 19) {
+                frame = 0;
+                reload.stop();
+                int amount = Math.min(reserveAmmo, maxAmmo - curAmmo);
+                reserveAmmo -= amount;
+                curAmmo += amount;
+            }
+        });
     }
 
     public void draw(Graphics g) {
-        if (recoil == 0) {
-            FRAMES[frame].draw(g);
-        } else {
-            FRAMES[20].draw(g);
+        FRAMES[frame].draw(g);
+        g.setColor(Color.YELLOW);
+        g.drawString(curAmmo + " / " + reserveAmmo + " Ammo", 100, 275);
+    }
+
+    public void reload() {
+        if (reserveAmmo > 0 && curAmmo < maxAmmo) {
+            reload.start();
+        }
+    }
+
+    public void buyAmmo(int ammo) {
+        reserveAmmo += ammo;
+    }
+
+    public boolean shootable() {
+        return frame == 0 && curAmmo > 0;
+    }
+
+    public void shoot() {
+        curAmmo--;
+        frame = 20;
+    }
+
+    public void unshoot() {
+        if (frame == 20) {
+            frame = 0;
         }
     }
 }

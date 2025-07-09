@@ -8,20 +8,11 @@ import java.awt.Font;
 import java.awt.Graphics;
 
 public class StartPanel extends JPanel {
-    private static final Sprite bg = new Sprite(0, 0, "imgs/bg.png");
-
-    protected static int width;
-    protected static int height;
-    protected static double globalScale;
+    private static Sprite bg;
 
     public StartPanel(int width, int height, double globalScale) {
-        StartPanel.width = width;
-        StartPanel.height = height;
-        StartPanel.globalScale = globalScale;
-
-        bg.resize((int) (bg.getWidth() * 3.75 / globalScale), (int) (bg.getHeight() * 3.75 / globalScale));
-        bg.setX((int) (-bg.getWidth() * 0.09));
-        bg.setY((int) (-bg.getHeight() * 0.32 / 1.5));
+        bg = new Sprite((int) (-5400 / globalScale * 0.09), (int) (-1800 / globalScale * 0.21), "imgs/bg.png",
+                (int) (5400 / globalScale), (int) (1800 / globalScale));
 
         setLayout(null);
 

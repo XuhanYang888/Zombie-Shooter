@@ -2,38 +2,39 @@ package src;
 
 import apphelper.Sprite;
 import javax.swing.JPanel;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Graphics;
 
 public class EndPanel extends JPanel {
-    private static final Sprite bg = new Sprite(0, 0, "imgs/bg_1.png");
+    private static Sprite bg;
 
-    protected static int width;
-    protected static int height;
-    protected static double globalScale;
-
-    static JLabel name;
+    private static JLabel message;
+    private static JButton exitButton;
 
     public EndPanel(int width, int height, double globalScale, boolean won) {
-        EndPanel.width = width;
-        EndPanel.height = height;
-        EndPanel.globalScale = globalScale;
-
-        bg.resize((int) (bg.getWidth() * 3.75 / globalScale), (int) (bg.getHeight() * 3.75 / globalScale));
-        bg.setX((int) (-bg.getWidth() * 0.09));
-        bg.setY((int) (-bg.getHeight() * 0.32 / 1.5));
+        bg = new Sprite((int) (-5400 / globalScale * 0.09), (int) (-1800 / globalScale * 0.21), "imgs/bg.png",
+                (int) (5400 / globalScale), (int) (1800 / globalScale));
 
         setLayout(null);
 
         if (won) {
-            name = new JLabel("You Won!");
+            message = new JLabel("You Won!");
         } else {
-            name = new JLabel("You Lost!");
+            message = new JLabel("You Lost!");
         }
-        name.setBounds(width / 2 - width / 18, height / 4, width / 9, height / 20);
-        name.setFont(new Font("Arial", Font.BOLD, width / 47));
-        add(name);
+        message.setBounds(width / 2 - width / 18, height / 4, width / 9, height / 20);
+        message.setFont(new Font("Arial", Font.BOLD, width / 47));
+        add(message);
+
+        exitButton = new JButton("End game");
+        exitButton.addActionListener(e -> {
+            System.exit(0);
+        });
+        exitButton.setBounds(width / 2 - width / 20, height / 3, width / 10, height / 30);
+        exitButton.setFont(new Font("Arial", Font.BOLD, width / 100));
+        add(exitButton);
     }
 
     @Override

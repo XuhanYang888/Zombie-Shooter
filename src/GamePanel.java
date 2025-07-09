@@ -10,10 +10,15 @@ import java.util.Collections;
 
 public class GamePanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
-    private static final Sprite bg = new Sprite(0, 0, "imgs/bg.png");
-    private static Sprite store = new Sprite(0, 0, "imgs/store.png");
-    private static Sprite exit = new Sprite(0, 0, "imgs/exit.png");
-    private static Sprite damage = new Sprite(0, 0, "imgs/damage.png");
+    private static Sprite bg;
+    private static Sprite store;
+    private static Sprite exit;
+    private static Sprite damage;
+
+    private static int storeX;
+    private static int storeY;
+    private static int exitX;
+    private static int exitY;
 
     protected static int width;
     protected static int height;
@@ -24,6 +29,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     private static Timer repaint;
     private static Timer viewOffset;
     private static Timer zombieFrames;
+    private static Timer hit;
 
     private static int deltaX;
     private static int deltaY;
@@ -45,24 +51,30 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     private static Weapon w;
 
-    static Timer t;
-    static Timer hit;
+    private static Font f;
 
     public GamePanel(int width, int height, double globalScale) {
         GamePanel.width = width;
         GamePanel.height = height;
         GamePanel.globalScale = globalScale;
 
-        bg.resize((int) (bg.getWidth() * 3.75 / globalScale), (int) (bg.getHeight() * 3.75 / globalScale));
-        offsetX = (int) (-bg.getWidth() * 0.09);
-        offsetY = (int) (-bg.getHeight() * 0.32 / 1.5);
+        bg = new Sprite(0, 0, "imgs/bg.png", (int) (5400 / globalScale), (int) (1800 / globalScale));
+        offsetX = (int) (-5400 / globalScale * 0.09);
+        offsetY = (int) (-1800 / globalScale * 0.21);
+        bg.setX(offsetX);
+        bg.setY(offsetY);
         limitX = -bg.getWidth() + GamePanel.width;
         limitY = -bg.getHeight() + GamePanel.height;
+        storeX = (int) (width * 1.343 / globalScale);
+        storeY = (int) (height * 0.75 / globalScale);
+        exitX = (int) (width * 2.03 / globalScale);
+        exitY = (int) (height * 0.87 / globalScale);
+        store = new Sprite(offsetX + storeX, offsetY + storeY, "imgs/store.png", (int) (264 / globalScale),
+                (int) (404 / globalScale));
+        exit = new Sprite(offsetX + exitX, offsetY + exitY, "imgs/exit.png", (int) (476 / globalScale),
+                (int) (204 / globalScale));
 
-        store.resize((int) (264 / globalScale), (int) (404 / globalScale));
-        exit.resize((int) (280 * 1.7 / globalScale), (int) (120 * 1.7 / globalScale));
-
-        damage.resize(width, height);
+        damage = new Sprite(0, 0, "imgs/damage.png", width, height);
 
         center = new int[] { width / 2, height / 2 };
 
@@ -72,8 +84,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         target = 100;
 
         wave = 0;
+        Zombie.updateCenter(center);
 
-        w = new Weapon();
+        w = new Weapon(width, height, globalScale);
 
         viewOffset = new Timer(1, e -> {
             offsetX -= 2 * deltaX;
@@ -101,9 +114,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
                     if (r.nextInt(20) == 0) {
                         z.flipHorizontal();
                     }
-                    if (z.scale >= 2.5) {
+                    if (z.reachPlayer()) {
                         zombies.remove(i);
-                        health -= z.damage;
+                        health -= z.getDamage();
                         if (health > 0) {
                             red = true;
                             hit.restart();
@@ -111,23 +124,11 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
                             repaint.stop();
                             viewOffset.stop();
                             zombieFrames.stop();
-                            t.stop();
                             hit.stop();
                             Game.showEnding(false);
                         }
                     }
                 }
-            }
-        });
-
-        t = new Timer(80, e -> {
-            w.frame++;
-            if (w.frame == 19) {
-                w.frame = 0;
-                t.stop();
-                int amount = Math.min(w.reserveAmmo, 20 - w.curAmmo);
-                w.reserveAmmo -= amount;
-                w.curAmmo += amount;
             }
         });
 
@@ -151,6 +152,8 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         Image i = t.createImage(new byte[0]);
         Cursor c = t.createCustomCursor(i, new Point(0, 0), "c");
         setCursor(c);
+
+        f = new Font("Arial", Font.BOLD, (int) (width / 47));
     }
 
     @Override
@@ -160,10 +163,10 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         bg.setX(offsetX);
         bg.setY(offsetY);
 
-        store.setX(offsetX + (int) (width * 1.343));
-        store.setY(offsetY + (int) (height * 0.75));
-        exit.setX(offsetX + (int) (width * 2.03));
-        exit.setY(offsetY + (int) (height * 1.3 / 1.5));
+        store.setX(offsetX + storeX);
+        store.setY(offsetY + storeY);
+        exit.setX(offsetX + exitX);
+        exit.setY(offsetY + exitY);
 
         // draw background
         bg.draw(g);
@@ -183,16 +186,16 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
         // draw crosshair
         g.setColor(Color.YELLOW);
-        g.fillRect(width / 2 - 20 - w.recoil, height / 2 - 2, 15, 4);
-        g.fillRect(width / 2 + 5 + w.recoil, height / 2 - 2, 15, 4);
-        g.fillRect(width / 2 - 2, height / 2 - 20 - w.recoil, 4, 15);
-        g.fillRect(width / 2 - 2, height / 2 + 5 + w.recoil, 4, 15);
-        g.drawString("❤️ " + health, 10, 30);
-        g.drawString("⭕ " + coins, 10, 45);
+        g.fillRect(width / 2 - 20, height / 2 - 2, 15, 4);
+        g.fillRect(width / 2 + 5, height / 2 - 2, 15, 4);
+        g.fillRect(width / 2 - 2, height / 2 - 20, 4, 15);
+        g.fillRect(width / 2 - 2, height / 2 + 5, 4, 15);
 
-        g.drawString("" + zombies.size(), 10, 60);
-        g.drawString("Current Wave: " + wave, 10, 60);
-        g.drawString(w.curAmmo + " / " + w.reserveAmmo + " Ammo", 10, 75);
+        g.setFont(f);
+        g.drawString("❤️ " + health, 10, 30);
+        g.drawString("⭕ " + coins, 10, 65);
+        g.drawString("" + zombies.size(), 10, 100);
+        g.drawString("Current Wave: " + wave, 10, 160);
 
         if (red) {
             damage.draw(g);
@@ -203,7 +206,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         for (int i = 0; i < n; i++) {
             zombies.add(new Zombie((int) (width * (0.7 + r.nextDouble(0.1))),
                     (int) (height * (1.3 / 1.5 + r.nextDouble(0.05))),
-                    globalScale, r.nextInt(5), h, d));
+                    globalScale, r.nextInt(5), wave));
         }
     }
 
@@ -212,7 +215,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         if (choice == 0) {
             if (coins >= 20) {
                 coins -= 20;
-                w.reserveAmmo += 100;
+                w.buyAmmo(100);
             }
         }
     }
@@ -224,7 +227,6 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
             repaint.stop();
             viewOffset.stop();
             zombieFrames.stop();
-            t.stop();
             hit.stop();
 
             Game.showEnding(true);
@@ -252,9 +254,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
                 }
                 break;
             case KeyEvent.VK_R:
-                if (w.reserveAmmo > 0) {
-                    t.start();
-                }
+                w.reload();
                 break;
             case KeyEvent.VK_ENTER:
                 coins += 1000;
@@ -303,15 +303,14 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
 
     @Override
     public void mousePressed(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1 && w.frame == 0 && w.curAmmo > 0) {
-            w.curAmmo--;
-            w.recoil = 3;
+        if (e.getButton() == MouseEvent.BUTTON1 && w.shootable()) {
+            w.shoot();
 
             for (int i = 0; i < zombies.size(); i++) {
                 Zombie z = zombies.get(i);
                 if (z.inRange(offsetX, offsetY)) {
-                    z.health--;
-                    if (z.health == 0) {
+                    z.deductHealth();
+                    if (!z.checkAlive()) {
                         zombies.remove(i);
                         coins += wave * 10;
                     }
@@ -324,7 +323,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     @Override
     public void mouseReleased(MouseEvent e) {
         if (e.getButton() == MouseEvent.BUTTON1) {
-            w.recoil = 0;
+            w.unshoot();
         }
     }
 

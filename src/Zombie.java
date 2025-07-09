@@ -5,90 +5,100 @@ import java.awt.*;
 
 public class Zombie {
 
-    protected final Sprite[] FRAMES = {
-            new Sprite(0, 0, "imgs/zombie/zombie0.png"),
-            new Sprite(0, 0, "imgs/zombie/zombie1.png"),
-            new Sprite(0, 0, "imgs/zombie/zombie2.png"),
-            new Sprite(0, 0, "imgs/zombie/zombie3.png"),
-            new Sprite(0, 0, "imgs/zombie/zombie4.png")
-    };
+    private int frame;
+    protected final Sprite[] FRAMES = new Sprite[5];
 
-    protected int width = 360;
-    protected int height = 380;
-    protected double scale;
+    private final int WIDTH;
+    private final int HEIGHT;
+    private double scale;
 
-    protected int x;
-    protected int y;
-    protected int health;
-    protected int originalHealth;
-    protected int damage;
+    private int x;
+    private int y;
+
+    private static int[] center;
+
+    private int health;
+    private final int ORIGINAL_HEALTH;
+    private int damage;
     private int direction;
 
-    private int cur;
-
-    public Zombie(int x, int y, double scale, int frame, int health, int damage) {
+    public Zombie(int x, int y, double scale, int frame, int wave) {
         this.x = x;
         this.y = y;
-        this.scale = scale;
-        width = (int) (width * 0.4 / scale);
-        height = (int) (height * 0.4 / scale);
-        this.health = this.originalHealth = health;
-        this.damage = damage;
+        this.scale = 1;
+        WIDTH = (int) (144 / scale);
+        HEIGHT = (int) (152 / scale);
+        this.health = this.ORIGINAL_HEALTH = wave * 5;
+        this.damage = wave * 5;
+        this.frame = frame;
         direction = 1;
-        cur = frame;
+        for (int i = 0; i < 5; i++)
+            FRAMES[i] = new Sprite(0, 0, "imgs/zombie/zombie" + i + ".png");
     }
 
     public void draw(Graphics g, int offsetX, int offsetY) {
-        Sprite temp = new Sprite(FRAMES[cur]);
+        Sprite temp = new Sprite(FRAMES[frame]);
         temp.setX(offsetX + x);
         temp.setY(offsetY + y);
-        temp.resize((int) (width * scale), (int) (height * scale));
+        temp.resize((int) (WIDTH * scale), (int) (HEIGHT * scale));
         temp.draw(g);
         temp = null;
 
-        if (health < originalHealth) {
+        if (health < ORIGINAL_HEALTH) {
             g.setColor(Color.black);
-            g.fillRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2), width,
-                    (int) (height * 0.1));
+            g.fillRect(offsetX + x + (int) (WIDTH * (scale - 1) * 0.45), offsetY + y - (int) (HEIGHT * 0.2), WIDTH,
+                    (int) (HEIGHT * 0.1));
             g.setColor(Color.red);
-            g.fillRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2),
-                    (int) (width * health / originalHealth), (int) (height * 0.1));
-            g.drawString("" + health, offsetX + x + (int) (width * (scale - 1) * 0.3), offsetY + y);
+            g.fillRect(offsetX + x + (int) (WIDTH * (scale - 1) * 0.45), offsetY + y - (int) (HEIGHT * 0.2),
+                    (int) (WIDTH * health / ORIGINAL_HEALTH), (int) (HEIGHT * 0.1));
+            g.drawString("" + health, offsetX + x + (int) (WIDTH * (scale - 1) * 0.3), offsetY + y);
             g.setColor(Color.black);
-            g.drawRect(offsetX + x + (int) (width * (scale - 1) * 0.45), offsetY + y - (int) (height * 0.2), width,
-                    (int) (height * 0.1));
+            g.drawRect(offsetX + x + (int) (WIDTH * (scale - 1) * 0.45), offsetY + y - (int) (HEIGHT * 0.2), WIDTH,
+                    (int) (HEIGHT * 0.1));
         }
         /**
          *
          * g.setColor(Color.YELLOW); if (direction == 1) {
-         * g.drawRect(GamePanel.offsetX + x + (int) (width * scale * 0.15),
-         * GamePanel.offsetY + y + (int) (height * scale * 0.15), (int) (width *
-         * scale * 0.5), (int) (height * scale * 0.8)); } else {
-         * g.drawRect(GamePanel.offsetX + x + (int) (width * scale * 0.35),
-         * GamePanel.offsetY + y + (int) (height * scale * 0.15), (int) (width *
-         * scale * 0.5), (int) (height * scale * 0.8)); }
+         * g.drawRect(GamePanel.offsetX + x + (int) (WIDTH * scale * 0.15),
+         * GamePanel.offsetY + y + (int) (HEIGHT * scale * 0.15), (int) (WIDTH *
+         * scale * 0.5), (int) (HEIGHT * scale * 0.8)); } else {
+         * g.drawRect(GamePanel.offsetX + x + (int) (WIDTH * scale * 0.35),
+         * GamePanel.offsetY + y + (int) (HEIGHT * scale * 0.15), (int) (WIDTH *
+         * scale * 0.5), (int) (HEIGHT * scale * 0.8)); }
          *
          */
     }
 
     public boolean inRange(int offsetX, int offsetY) {
         if (direction == 1) {
-            return (offsetX + x + (width * scale * 0.15) - GamePanel.width / 2 <= 0
-                    && offsetX + x + (width * scale * 0.15) - GamePanel.width / 2 >= -width * scale * 0.5
-                    && offsetY + y + (height * scale * 0.15) - GamePanel.height / 2 <= 0
-                    && offsetY + y + (height * scale * 0.15) - GamePanel.height / 2 >= -height * scale * 0.8);
+            return (offsetX + x + (WIDTH * scale * 0.15) - center[0] <= 0
+                    && offsetX + x + (WIDTH * scale * 0.15) - center[0] >= -WIDTH * scale * 0.5
+                    && offsetY + y + (HEIGHT * scale * 0.15) - center[1] <= 0
+                    && offsetY + y + (HEIGHT * scale * 0.15) - center[1] >= -HEIGHT * scale * 0.8);
         } else {
-            return (offsetX + x + (width * scale * 0.35) - GamePanel.width / 2 <= 0
-                    && offsetX + x + (width * scale * 0.35) - GamePanel.width / 2 >= -width * scale * 0.5
-                    && offsetY + y + (height * scale * 0.15) - GamePanel.height / 2 <= 0
-                    && offsetY + y + (height * scale * 0.15) - GamePanel.height / 2 >= -height * scale * 0.8);
+            return (offsetX + x + (WIDTH * scale * 0.35) - center[0] <= 0
+                    && offsetX + x + (WIDTH * scale * 0.35) - center[0] >= -WIDTH * scale * 0.5
+                    && offsetY + y + (HEIGHT * scale * 0.15) - center[1] <= 0
+                    && offsetY + y + (HEIGHT * scale * 0.15) - center[1] >= -HEIGHT * scale * 0.8);
         }
     }
 
+    public void deductHealth() {
+        health--;
+    }
+
+    public boolean checkAlive() {
+        return health > 0;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
     public void nextFrame() {
-        cur++;
-        cur = cur % 5;
-        if (cur == 0) {
+        frame++;
+        frame = frame % 5;
+        if (frame == 0) {
             x += direction * scale * 8;
             scale += 0.02;
         }
@@ -99,5 +109,13 @@ public class Zombie {
             direction = -direction;
             s.flipHorizontal();
         }
+    }
+
+    public boolean reachPlayer() {
+        return scale >= 2.5;
+    }
+
+    public static void updateCenter(int[] center) {
+        Zombie.center = center;
     }
 }

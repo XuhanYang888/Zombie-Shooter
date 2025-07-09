@@ -5,8 +5,8 @@ import javax.swing.*;
 import java.awt.geom.AffineTransform;
 
 public class Game extends JFrame {
-    
-    private static CardLayout cardLayout = new CardLayout();
+
+    private static final CardLayout cardLayout = new CardLayout();
     private static JPanel main;
     private static GamePanel game;
     private static JPanel start;
@@ -42,6 +42,7 @@ public class Game extends JFrame {
         main.add(game, "game");
         cardLayout.show(main, "game");
         game.requestFocusInWindow();
+        start = null;
     }
 
     public static void showEnding(boolean won) {
