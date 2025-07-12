@@ -2,39 +2,38 @@ package src;
 
 import apphelper.Sprite;
 import javax.swing.JPanel;
-import javax.swing.JButton;
+import javax.swing.SwingConstants;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.Graphics;
 
 public class EndPanel extends JPanel {
     private static Sprite bg;
 
-    private static JLabel message;
-    private static JButton exitButton;
-
     public EndPanel(int width, int height, double globalScale, boolean won) {
         bg = new Sprite((int) (-5400 / globalScale * 0.09), (int) (-1800 / globalScale * 0.21), "imgs/bg.png",
                 (int) (5400 / globalScale), (int) (1800 / globalScale));
 
-        setLayout(null);
+        setLayout(new BorderLayout());
 
-        if (won) {
-            message = new JLabel("You Won!");
-        } else {
-            message = new JLabel("You Lost!");
-        }
-        message.setBounds(width / 2 - width / 18, height / 4, width / 9, height / 20);
-        message.setFont(new Font("Arial", Font.BOLD, width / 47));
-        add(message);
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setOpaque(false);
 
-        exitButton = new JButton("End game");
-        exitButton.addActionListener(e -> {
-            System.exit(0);
-        });
-        exitButton.setBounds(width / 2 - width / 20, height / 3, width / 10, height / 30);
-        exitButton.setFont(new Font("Arial", Font.BOLD, width / 100));
-        add(exitButton);
+        JLabel name = new JLabel(won ? "You Won!" : "You Lost!", SwingConstants.CENTER);
+        name.setAlignmentX(Component.CENTER_ALIGNMENT);
+        name.setFont(new Font("Arial", Font.BOLD, width / 47));
+
+        centerPanel.add(Box.createVerticalGlue());
+        centerPanel.add(name);
+        centerPanel.add(Box.createVerticalStrut(height / 4));
+        centerPanel.add(Box.createVerticalGlue());
+
+        add(centerPanel, BorderLayout.CENTER);
     }
 
     @Override

@@ -1,11 +1,8 @@
 package src;
 
 import apphelper.Sprite;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JButton;
-import java.awt.Font;
-import java.awt.Graphics;
+import javax.swing.*;
+import java.awt.*;
 
 public class StartPanel extends JPanel {
     private static Sprite bg;
@@ -14,26 +11,51 @@ public class StartPanel extends JPanel {
         bg = new Sprite((int) (-5400 / globalScale * 0.09), (int) (-1800 / globalScale * 0.21), "imgs/bg.png",
                 (int) (5400 / globalScale), (int) (1800 / globalScale));
 
-        setLayout(null);
+        setLayout(new BorderLayout());
 
-        JLabel name = new JLabel("Extract: Zombie Shooter");
-        name.setBounds(width / 2 - width / 8, height / 4, width / 4, height / 20);
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setOpaque(false);
+
+        JLabel name = new JLabel("Extract: Zombie Shooter", SwingConstants.CENTER);
+        name.setAlignmentX(Component.CENTER_ALIGNMENT);
         name.setFont(new Font("Arial", Font.BOLD, width / 47));
-        add(name);
 
         JButton startButton = new JButton("start game");
-        startButton.addActionListener(e -> {
-            Game.showGame();
-        });
-        startButton.setBounds(width / 2 - width / 20, height / 3, width / 10, height / 30);
+        startButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         startButton.setFont(new Font("Arial", Font.BOLD, width / 100));
-        add(startButton);
+        startButton.addActionListener(e -> Game.showGame());
+
+        centerPanel.add(Box.createVerticalGlue());
+        centerPanel.add(name);
+        centerPanel.add(Box.createVerticalStrut(height / 20));
+        centerPanel.add(startButton);
+        centerPanel.add(Box.createVerticalStrut(height / 5));
+        centerPanel.add(Box.createVerticalGlue());
+
+        add(centerPanel, BorderLayout.CENTER);
+
+        JLabel controlsLabel = new JLabel(
+            "<html>Controls:<br>" +
+            "Move mouse to look around<br>" +
+            "Left click to shoot<br>" +
+            "F to use store or car<br>" +
+            "R to reload" +
+            "</html>",
+            SwingConstants.CENTER
+        );
+        controlsLabel.setFont(new Font("Arial", Font.PLAIN, width / 70));
+
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.setOpaque(false);
+        bottomPanel.add(controlsLabel);
+
+        add(bottomPanel, BorderLayout.SOUTH);
     }
 
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        // draw background
         bg.draw(g);
     }
 }

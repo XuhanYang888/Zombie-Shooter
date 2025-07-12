@@ -2,6 +2,8 @@ package src;
 
 import apphelper.*;
 import java.awt.*;
+
+import javax.swing.JOptionPane;
 import javax.swing.Timer;
 
 public class Weapon {
@@ -15,6 +17,10 @@ public class Weapon {
 
     private Timer reload;
 
+    private final Sprite[] ammoIndicator = new Sprite[2];
+    private final int[] ammoIndicatorCoords;
+    private final Font f;
+
     public Weapon(int width, int height, double scale) {
         curAmmo = maxAmmo = 20;
         reserveAmmo = 100;
@@ -23,11 +29,20 @@ public class Weapon {
         int h = (int) (875 / scale);
         int x = (int) (width * 0.6);
         int y = height - 875;
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 10; i++) {
             FRAMES[i] = new Sprite(x, y, "imgs/pistol/pistol_0" + i + ".png", w, h);
-        for (int i = 0; i < 10; i++)
+        }
+        for (int i = 0; i < 10; i++) {
             FRAMES[10 + i] = new Sprite(x, y, "imgs/pistol/pistol_1" + i + ".png", w, h);
+        }
         FRAMES[20] = new Sprite(x, y, "imgs/pistol/shoot.png", w, h);
+
+        ammoIndicator[0] = new Sprite((int) (width * 0.85), (int) (height * 0.75), "imgs/pistol/yesAmmo.png",
+                (int) (100 / scale), (int) (100 / scale));
+        ammoIndicator[1] = new Sprite((int) (width * 0.85), (int) (height * 0.75), "imgs/pistol/noAmmo.png",
+                (int) (100 / scale), (int) (100 / scale));
+        ammoIndicatorCoords = new int[] { (int) (width * 0.85), (int) (height * 0.74) };
+        f = new Font("Arial", Font.BOLD, width / 70);
 
         reload = new Timer(80, e -> {
             frame++;
@@ -43,12 +58,20 @@ public class Weapon {
 
     public void draw(Graphics g) {
         FRAMES[frame].draw(g);
-        g.setColor(Color.YELLOW);
-        g.drawString(curAmmo + " / " + reserveAmmo + " Ammo", 100, 275);
+        g.setFont(f);
+        g.setColor(Color.orange);
+        g.drawString(curAmmo + " / " + reserveAmmo + " Ammo", ammoIndicatorCoords[0], ammoIndicatorCoords[1]);
+        if (curAmmo == 0) {
+            ammoIndicator[1].draw(g);
+        } else {
+            ammoIndicator[0].draw(g);
+        }
     }
 
     public void reload() {
-        if (reserveAmmo > 0 && curAmmo < maxAmmo) {
+        if (reserveAmmo == 0) {
+            JOptionPane.showMessageDialog(Game.getGamePanel(), "You have no ammo left. Buy some at the store.");
+        } else if (curAmmo < maxAmmo) {
             reload.start();
         }
     }

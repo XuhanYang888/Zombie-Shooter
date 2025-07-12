@@ -42,12 +42,14 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
     private static boolean red;
     private static int coins;
     private static int target;
+    private static int wave;
+    private static int[] infoDisplayCoords;
+    private static Sprite heart;
+    private static Sprite coin;
 
     private static final Random r = new Random();
 
     private static final ArrayList<Zombie> zombies = new ArrayList<>();
-
-    private static int wave;
 
     private static Weapon w;
 
@@ -81,7 +83,16 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         health = 100;
         red = false;
         coins = 0;
-        target = 100;
+        target = 200;
+
+        heart = new Sprite((int) (width * 0.01), (int) (height * 0.01), "imgs/heart.png", (int) (45 / globalScale),
+                (int) (45 / globalScale));
+        coin = new Sprite((int) (width * 0.01), (int) (height * 0.07), "imgs/coin.png", (int) (45 / globalScale),
+                (int) (45 / globalScale));
+        infoDisplayCoords = new int[] { (int) (width * 0.04), (int) (height * 0.045),
+                (int) (width * 0.04), (int) (height * 0.105),
+                (int) (width * 0.01), (int) (height * 0.165)
+        };
 
         wave = 0;
         Zombie.updateCenter(center);
@@ -192,10 +203,14 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         g.fillRect(width / 2 - 2, height / 2 + 5, 4, 15);
 
         g.setFont(f);
-        g.drawString("❤️ " + health, 10, 30);
-        g.drawString("⭕ " + coins, 10, 65);
-        g.drawString("" + zombies.size(), 10, 100);
-        g.drawString("Current Wave: " + wave, 10, 160);
+        g.setColor(Color.red);
+        heart.draw(g);
+        g.drawString("" + health, infoDisplayCoords[0], infoDisplayCoords[1]);
+        g.setColor(Color.yellow);
+        coin.draw(g);
+        g.drawString("" + coins, infoDisplayCoords[2], infoDisplayCoords[3]);
+        g.setColor(Color.orange);
+        g.drawString("Current Wave: " + wave, infoDisplayCoords[4], infoDisplayCoords[5]);
 
         if (red) {
             damage.draw(g);

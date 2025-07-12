@@ -57,4 +57,8 @@ public class Game extends JFrame {
         Game g = new Game();
         g.setVisible(true);
     }
+
+    public static GamePanel getGamePanel() {
+        return game;
+    }
 }
