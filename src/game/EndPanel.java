@@ -1,11 +1,14 @@
-package src;
+package src.game;
 
-import apphelper.Sprite;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+
+import src.apphelper.Sprite;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
+
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Font;
@@ -15,7 +18,7 @@ public class EndPanel extends JPanel {
     private static Sprite bg;
 
     public EndPanel(int width, int height, double globalScale, boolean won) {
-        bg = new Sprite((int) (-5400 / globalScale * 0.09), (int) (-1800 / globalScale * 0.21), "imgs/bg.png",
+        bg = new Sprite((int) (-5400 / globalScale * 0.09), (int) (-1800 / globalScale * 0.21), "src/imgs/bg.png",
                 (int) (5400 / globalScale), (int) (1800 / globalScale));
 
         setLayout(new BorderLayout());
@@ -34,6 +37,7 @@ public class EndPanel extends JPanel {
         centerPanel.add(Box.createVerticalGlue());
 
         add(centerPanel, BorderLayout.CENTER);
+
     }
 
     @Override

@@ -1,4 +1,6 @@
-package apphelper;
+// Not used for v1
+
+package src.apphelper;
 
 import java.io.File;
 import javax.sound.sampled.AudioInputStream;

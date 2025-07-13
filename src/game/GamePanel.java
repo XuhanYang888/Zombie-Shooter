@@ -1,12 +1,29 @@
-package src;
+package src.game;
 
-import apphelper.*;
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTException;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Robot;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Collections;
+
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+import src.apphelper.Sprite;
 
 public class GamePanel extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
@@ -60,7 +77,7 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         GamePanel.height = height;
         GamePanel.globalScale = globalScale;
 
-        bg = new Sprite(0, 0, "imgs/bg.png", (int) (5400 / globalScale), (int) (1800 / globalScale));
+        bg = new Sprite(0, 0, "src/imgs/bg.png", (int) (5400 / globalScale), (int) (1800 / globalScale));
         offsetX = (int) (-5400 / globalScale * 0.09);
         offsetY = (int) (-1800 / globalScale * 0.21);
         bg.setX(offsetX);
@@ -71,12 +88,12 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         storeY = (int) (height * 0.75 / globalScale);
         exitX = (int) (width * 2.03 / globalScale);
         exitY = (int) (height * 0.87 / globalScale);
-        store = new Sprite(offsetX + storeX, offsetY + storeY, "imgs/store.png", (int) (264 / globalScale),
+        store = new Sprite(offsetX + storeX, offsetY + storeY, "src/imgs/store.png", (int) (264 / globalScale),
                 (int) (404 / globalScale));
-        exit = new Sprite(offsetX + exitX, offsetY + exitY, "imgs/exit.png", (int) (476 / globalScale),
+        exit = new Sprite(offsetX + exitX, offsetY + exitY, "src/imgs/exit.png", (int) (476 / globalScale),
                 (int) (204 / globalScale));
 
-        damage = new Sprite(0, 0, "imgs/damage.png", width, height);
+        damage = new Sprite(0, 0, "src/imgs/damage.png", width, height);
 
         center = new int[] { width / 2, height / 2 };
 
@@ -85,9 +102,9 @@ public class GamePanel extends JPanel implements KeyListener, MouseListener, Mou
         coins = 0;
         target = 200;
 
-        heart = new Sprite((int) (width * 0.01), (int) (height * 0.01), "imgs/heart.png", (int) (45 / globalScale),
+        heart = new Sprite((int) (width * 0.01), (int) (height * 0.01), "src/imgs/heart.png", (int) (45 / globalScale),
                 (int) (45 / globalScale));
-        coin = new Sprite((int) (width * 0.01), (int) (height * 0.07), "imgs/coin.png", (int) (45 / globalScale),
+        coin = new Sprite((int) (width * 0.01), (int) (height * 0.07), "src/imgs/coin.png", (int) (45 / globalScale),
                 (int) (45 / globalScale));
         infoDisplayCoords = new int[] { (int) (width * 0.04), (int) (height * 0.045),
                 (int) (width * 0.04), (int) (height * 0.105),

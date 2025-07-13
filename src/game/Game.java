@@ -1,8 +1,15 @@
-package src;
+package src.game;
 
-import java.awt.*;
-import javax.swing.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.DisplayMode;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.geom.AffineTransform;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 public class Game extends JFrame {
 
