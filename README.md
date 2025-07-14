@@ -4,6 +4,8 @@
 
 This project is a "3D" first-person zombie shooter game made using Java. Players must survive waves of incoming zombies to collect coins to reach the ultimate goal: extraction. This game aims to simulate a 3D environment using 2D assets only (absolutely no 3D game engine involved).
 
+https://github.com/user-attachments/assets/25d3b138-4584-4704-961a-c5720747827f
+
 ---
 
 ## How to Play
