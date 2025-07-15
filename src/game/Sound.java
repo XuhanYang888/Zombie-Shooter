@@ -1,6 +1,6 @@
 // Not used for v1
 
-package src.apphelper;
+package src.game;
 
 import java.io.File;
 import javax.sound.sampled.AudioInputStream;

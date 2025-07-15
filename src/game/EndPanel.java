@@ -3,8 +3,6 @@ package src.game;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import src.apphelper.Sprite;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
@@ -18,7 +16,7 @@ public class EndPanel extends JPanel {
     private static Sprite bg;
 
     public EndPanel(int width, int height, double globalScale, boolean won) {
-        bg = new Sprite((int) (-5400 / globalScale * 0.09), (int) (-1800 / globalScale * 0.21), "src/imgs/bg.png",
+        bg = new Sprite((int) (-5400 / globalScale * 0.09), (int) (-1800 / globalScale * 0.21), "bg.png",
                 (int) (5400 / globalScale), (int) (1800 / globalScale));
 
         setLayout(new BorderLayout());

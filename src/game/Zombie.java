@@ -3,8 +3,6 @@ package src.game;
 import java.awt.Color;
 import java.awt.Graphics;
 
-import src.apphelper.Sprite;
-
 public class Zombie {
 
     private int frame;
@@ -35,7 +33,7 @@ public class Zombie {
         this.frame = frame;
         direction = 1;
         for (int i = 0; i < 5; i++)
-            FRAMES[i] = new Sprite(0, 0, "src/imgs/zombie/zombie" + i + ".png");
+            FRAMES[i] = new Sprite(0, 0, "zombie/zombie" + i + ".png");
     }
 
     public void draw(Graphics g, int offsetX, int offsetY) {

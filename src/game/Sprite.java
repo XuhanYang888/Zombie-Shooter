@@ -1,10 +1,9 @@
-package src.apphelper;
+package src.game;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
@@ -26,7 +25,7 @@ public class Sprite {
         this.x = x;
         this.y = y;
         try {
-            this.picture = ImageIO.read(new File(picName));
+            this.picture = ImageIO.read(getClass().getResourceAsStream("/imgs/" + picName));
         } catch (IOException ex) {
             System.out.println("File not found! " + picName);
         }
